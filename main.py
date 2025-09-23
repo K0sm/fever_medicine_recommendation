@@ -107,7 +107,40 @@ def predict_medicine(*inputs):
                 f'{prob*100:.1f}%', ha='center', va='bottom', fontsize=10, color="#34514a")
     plt.tight_layout()
 
-    return f"**Medicinale consigliato:** <span style='color:#227373'>{pred_label}</span>\n\n**Affidabilità:** <span style='color:#227373'>{class_probs[list(clf.classes_).index(pred)]*100:.2f}%</span>", fig
+    confidence = class_probs[list(clf.classes_).index(pred)] * 100
+
+    if confidence <= 30:
+        conf_color = "background:#990D35;color:#9d1212;"
+    elif confidence <= 70:
+        conf_color = "background:#D78521;color:#938015;"
+    elif confidence <= 90:
+        conf_color = "background:#519872;color:#8c5f00;"
+    else:
+        conf_color = "background:#2ecc71;color:#165c37;"
+
+
+    result_html = f"""
+        <div style='
+            background:#e0f7ef;
+            color:#227373;
+            font-size:1.3em;
+            font-weight:700;
+            border-radius:10px;
+            margin:18px 0 8px 0;
+            padding:18px 10px;
+            text-align: center;
+            box-shadow: 0 0 8px #69c4b1aa;
+            border:2px solid #b9ede6;
+        '>
+            Medicinale consigliato:<br>
+            <span style="font-size:2em;color:#21836b">{pred_label}</span>
+            <div style='margin-top:10px;font-size:1.1em;color:#227373;'>
+                Affidabilità: <span style='padding:3px 12px;border-radius:8px;{conf_color}'><b>{confidence:.2f}%</b></span>
+            </div>
+        </div>
+        """
+
+    return result_html, fig
 
 # --- UI COMPATTA E MODERNA (paper3: Fields affiancati, styling green/teal) ---
 
