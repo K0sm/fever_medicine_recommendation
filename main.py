@@ -155,32 +155,29 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), 
     with gr.Row():
         age = gr.Number(label="Età", value=default_values["Età"])
         gender = gr.Dropdown(label="Genere", choices=menu_options['Gender'], value="Male")
-    with gr.Row():
         temperature = gr.Number(label="Temperatura", value=default_values["Temperatura"])
-        fever_severity = gr.Dropdown(label="Gravità febbre", choices=menu_options["Fever_Severity"], value="Mild Fever")
     with gr.Row():
+        fever_severity = gr.Dropdown(label="Gravità febbre", choices=menu_options["Fever_Severity"], value="Mild Fever")
         bmi = gr.Number(label="BMI", value=default_values["BMI"])
         heart_rate = gr.Number(label="Frequenza cardiaca", value=default_values["Frequenza cardiaca"])
     with gr.Row():
         humidity = gr.Number(label="Umidità", value=default_values["Umidità"])
         aqi = gr.Number(label="AQI", value=default_values["AQI"])
-    with gr.Row():
         diet_type = gr.Dropdown(label="Dieta", choices=menu_options['Diet_Type'], value="Non-Vegetarian")
-        physical_activity = gr.Dropdown(label="Attività fisica", choices=menu_options['Physical_Activity'], value="Moderate")
     with gr.Row():
+        physical_activity = gr.Dropdown(label="Attività fisica", choices=menu_options['Physical_Activity'], value="Moderate")
         blood_pressure = gr.Dropdown(label="Pressione", choices=menu_options['Blood_Pressure'], value="Normal")
         headache = gr.Dropdown(label="Mal di testa", choices=menu_options['Headache'], value="No")
     with gr.Row():
         body_ache = gr.Dropdown(label="Dolori Muscolari", choices=menu_options['Body_Ache'], value="No")
         fatigue = gr.Dropdown(label="Stanchezza", choices=menu_options['Fatigue'], value="No")
-    with gr.Row():
         chronic_conditions = gr.Dropdown(label="Patologie Croniche", choices=menu_options['Chronic_Conditions'], value="No")
-        allergies = gr.Dropdown(label="Allergie", choices=menu_options['Allergies'], value="No")
     with gr.Row():
+        allergies = gr.Dropdown(label="Allergie", choices=menu_options['Allergies'], value="No")
         smoking_history = gr.Dropdown(label="Fumatore", choices=menu_options['Smoking_History'], value="No")
         alcohol = gr.Dropdown(label="Alcol", choices=menu_options['Alcohol_Consumption'], value="No")
-    with gr.Row():
         previous_med = gr.Dropdown(label="Farmaco Precedente", choices=menu_options['Previous_Medication'], value="None")
+        
     btn = gr.Button("Ottieni raccomandazione", elem_id="main-btn")
     output_md = gr.Markdown()
     output_plot = gr.Plot()
