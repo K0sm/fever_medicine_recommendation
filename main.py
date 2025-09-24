@@ -28,6 +28,28 @@ df.fillna('None', inplace=True)
 target = 'Recommended_Medication'
 features = [col for col in df.columns if col != target]
 
+LABELS = {
+    "age": "Age",
+    "gender": "Gender",
+    "temperature": "Temperature (°C)",
+    "fever_severity": "Fever Severity",
+    "bmi": "BMI",
+    "heart_rate": "Heart Rate",
+    "humidity": "Humidity (%)",
+    "aqi": "Air Quality Index (AQI)",
+    "diet_type": "Diet Type",
+    "physical_activity": "Physical Activity",
+    "blood_pressure": "Blood Pressure",
+    "headache": "Headache",
+    "body_ache": "Body Ache",
+    "fatigue": "Fatigue",
+    "chronic_conditions": "Chronic Conditions",
+    "allergies": "Allergies",
+    "smoking_history": "Smoking History",
+    "alcohol": "Alcohol Consumption",
+    "previous_med": "Previous Medication"
+}
+
 # Encoding categorico per consistenza Random Forest (paper1)
 le_dict = {}
 for col in df.columns:
@@ -39,7 +61,10 @@ for col in df.columns:
 X = df[features]
 y = df[target]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-clf = RandomForestClassifier()
+clf = RandomForestClassifier(
+    random_state=42,
+    min_samples_leaf=2,
+    max_features='sqrt')
 clf.fit(X_train, y_train)
 
 # --- DEFINIZIONE CAMPI E VALORI USER-FRIENDLY ---
@@ -66,12 +91,12 @@ numeric_fields = num_fields1 + num_fields2
 
 # Valori attendibili per UX (basato su range reali e medie)
 default_values = {
-    "Età": 40,   # Adulti
-    "Temperatura": 37.5,
-    "BMI": 24,
-    "Frequenza cardiaca": 80,
-    "Umidità": 60,
-    "AQI": 50
+    LABELS["age"]: 40,
+    LABELS["temperature"]: 37.5,
+    LABELS["bmi"]: 24,
+    LABELS["heart_rate"]: 80,
+    LABELS["humidity"]: 60,
+    LABELS["aqi"]: 50
 }
 
 # --- FUNZIONE DI PREDIZIONE ROBUSTA (in stile paper2) ---
@@ -99,9 +124,9 @@ def predict_medicine(*inputs):
     fig.patch.set_facecolor("#f5fbf7")
     bars = ax.bar(labels, class_probs, color=['#3cba92' if lbl == pred_label else '#b0d2c1' for lbl in labels])
     ax.set_facecolor("#f5fbf7")
-    ax.set_ylabel('Probabilità')
+    ax.set_ylabel('Probability')
     ax.set_ylim(0, 1)
-    ax.set_title('Affidabilità', color="#227373", fontsize=12)
+    ax.set_title('Realiability', color="#227373", fontsize=12)
     for bar, prob in zip(bars, class_probs):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
                 f'{prob*100:.1f}%', ha='center', va='bottom', fontsize=10, color="#34514a")
@@ -132,10 +157,10 @@ def predict_medicine(*inputs):
             box-shadow: 0 0 8px #69c4b1aa;
             border:2px solid #b9ede6;
         '>
-            Medicinale consigliato:<br>
+            Suggested medicine:<br>
             <span style="font-size:2em;color:#21836b">{pred_label}</span>
             <div style='margin-top:10px;font-size:1.1em;color:#227373;'>
-                Affidabilità: <span style='padding:3px 12px;border-radius:8px;{conf_color}'><b>{confidence:.2f}%</b></span>
+                Reliability: <span style='padding:3px 12px;border-radius:8px;{conf_color}'><b>{confidence:.2f}%</b></span>
             </div>
         </div>
         """
@@ -150,35 +175,35 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), 
     label { color: #2b524b!important; }
     .gradio-container { background: #f0f6f3!important;}
 """) as demo:
-    gr.Markdown("<h1 style='color:#227373;font-weight:800;text-align:center;'>Raccomandazione Medicinale &#x1F48A;</h1>")
-    gr.Markdown("Sistema basato su Random Forest e UI moderna. Stato dell’arte: SSRN:5207379 | PubMed:37627940 | WJARR-2025-0382")
+    gr.Markdown("<h1 style='color:#227373;font-weight:800;text-align:center;'>Medicine Recommendation System</h1>")
+    gr.Markdown("<span style='display:block;text-align:center;color:#227373;'>A modern clinical decision support tool based on Random Forest.<br>See included references: SSRN:5207379 | PubMed:37627940 | WJARR-2025-0382</span>")
     with gr.Row():
-        age = gr.Number(label="Età", value=default_values["Età"])
-        gender = gr.Dropdown(label="Genere", choices=menu_options['Gender'], value="Male")
-        temperature = gr.Number(label="Temperatura", value=default_values["Temperatura"])
+        age = gr.Number(label=LABELS["age"], value=default_values[LABELS["age"]])
+        gender = gr.Dropdown(label=LABELS["gender"], choices=menu_options['Gender'], value="Male")
+        temperature = gr.Number(label=LABELS["temperature"], value=default_values[LABELS["temperature"]])
     with gr.Row():
-        fever_severity = gr.Dropdown(label="Gravità febbre", choices=menu_options["Fever_Severity"], value="Mild Fever")
-        bmi = gr.Number(label="BMI", value=default_values["BMI"])
-        heart_rate = gr.Number(label="Frequenza cardiaca", value=default_values["Frequenza cardiaca"])
+        fever_severity = gr.Dropdown(label=LABELS["fever_severity"], choices=menu_options["Fever_Severity"], value="Mild Fever")
+        bmi = gr.Number(label=LABELS["bmi"], value=default_values[LABELS["bmi"]])
+        heart_rate = gr.Number(label=LABELS["heart_rate"], value=default_values[LABELS["heart_rate"]])
     with gr.Row():
-        humidity = gr.Number(label="Umidità", value=default_values["Umidità"])
-        aqi = gr.Number(label="AQI", value=default_values["AQI"])
-        diet_type = gr.Dropdown(label="Dieta", choices=menu_options['Diet_Type'], value="Non-Vegetarian")
+        humidity = gr.Number(label=LABELS["humidity"], value=default_values[LABELS["humidity"]])
+        aqi = gr.Number(label=LABELS["aqi"], value=default_values[LABELS["aqi"]])
+        diet_type = gr.Dropdown(label=LABELS["diet_type"], choices=menu_options['Diet_Type'], value="Non-Vegetarian")
     with gr.Row():
-        physical_activity = gr.Dropdown(label="Attività fisica", choices=menu_options['Physical_Activity'], value="Moderate")
-        blood_pressure = gr.Dropdown(label="Pressione", choices=menu_options['Blood_Pressure'], value="Normal")
-        headache = gr.Dropdown(label="Mal di testa", choices=menu_options['Headache'], value="No")
+        physical_activity = gr.Dropdown(label=LABELS["physical_activity"], choices=menu_options['Physical_Activity'], value="Moderate")
+        blood_pressure = gr.Dropdown(label=LABELS["blood_pressure"], choices=menu_options['Blood_Pressure'], value="Normal")
+        headache = gr.Dropdown(label=LABELS["headache"], choices=menu_options['Headache'], value="No")
     with gr.Row():
-        body_ache = gr.Dropdown(label="Dolori Muscolari", choices=menu_options['Body_Ache'], value="No")
-        fatigue = gr.Dropdown(label="Stanchezza", choices=menu_options['Fatigue'], value="No")
-        chronic_conditions = gr.Dropdown(label="Patologie Croniche", choices=menu_options['Chronic_Conditions'], value="No")
+        body_ache = gr.Dropdown(label=LABELS["body_ache"], choices=menu_options['Body_Ache'], value="No")
+        fatigue = gr.Dropdown(label=LABELS["fatigue"], choices=menu_options['Fatigue'], value="No")
+        chronic_conditions = gr.Dropdown(label=LABELS["chronic_conditions"], choices=menu_options['Chronic_Conditions'], value="No")
     with gr.Row():
-        allergies = gr.Dropdown(label="Allergie", choices=menu_options['Allergies'], value="No")
-        smoking_history = gr.Dropdown(label="Fumatore", choices=menu_options['Smoking_History'], value="No")
-        alcohol = gr.Dropdown(label="Alcol", choices=menu_options['Alcohol_Consumption'], value="No")
-        previous_med = gr.Dropdown(label="Farmaco Precedente", choices=menu_options['Previous_Medication'], value="None")
+        allergies = gr.Dropdown(label=LABELS["allergies"], choices=menu_options['Allergies'], value="No")
+        smoking_history = gr.Dropdown(label=LABELS["smoking_history"], choices=menu_options['Smoking_History'], value="No")
+        alcohol = gr.Dropdown(label=LABELS["alcohol"], choices=menu_options['Alcohol_Consumption'], value="No")
+        previous_med = gr.Dropdown(label=LABELS["previous_med"], choices=menu_options['Previous_Medication'], value="None")
         
-    btn = gr.Button("Ottieni raccomandazione", elem_id="main-btn")
+    btn = gr.Button("Get recommendation", elem_id="main-btn")
     output_md = gr.Markdown()
     output_plot = gr.Plot()
     btn.click(
