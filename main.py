@@ -124,9 +124,8 @@ def predict_medicine(*inputs):
     fig.patch.set_facecolor("#f5fbf7")
     bars = ax.bar(labels, class_probs, color=['#3cba92' if lbl == pred_label else '#b0d2c1' for lbl in labels])
     ax.set_facecolor("#f5fbf7")
-    ax.set_ylabel('Probability')
+    ax.set_ylabel('Realiability')
     ax.set_ylim(0, 1)
-    ax.set_title('Realiability', color="#227373", fontsize=12)
     for bar, prob in zip(bars, class_probs):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
                 f'{prob*100:.1f}%', ha='center', va='bottom', fontsize=10, color="#34514a")
