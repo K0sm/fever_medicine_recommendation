@@ -20,10 +20,22 @@ from sklearn.preprocessing import LabelEncoder
 import gradio as gr
 import matplotlib.pyplot as plt
 
+# --- FUNZIONE PER RIMOZIONE OUTLIER ---
+def remove_outliers_iqr(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
 # --- PREPARAZIONE DATI ---
 
 df = pd.read_csv('enhanced_fever_medicine_recommendation.csv')
 df.fillna('None', inplace=True)
+
+# Applica la funzione per rimuovere outlier dalla temperatura
+df = remove_outliers_iqr(df, 'Temperature')
 
 target = 'Recommended_Medication'
 features = [col for col in df.columns if col != target]
@@ -31,11 +43,11 @@ features = [col for col in df.columns if col != target]
 LABELS = {
     "age": "Age",
     "gender": "Gender",
-    "temperature": "Temperature (°C)",
+    "temperature": "Temperature",
     "fever_severity": "Fever Severity",
     "bmi": "BMI",
     "heart_rate": "Heart Rate",
-    "humidity": "Humidity (%)",
+    "humidity": "Humidity",
     "aqi": "Air Quality Index (AQI)",
     "diet_type": "Diet Type",
     "physical_activity": "Physical Activity",
@@ -60,11 +72,14 @@ for col in df.columns:
 
 X = df[features]
 y = df[target]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+
 clf = RandomForestClassifier(
-    random_state=42,
+    n_estimators=100,
     min_samples_leaf=2,
-    max_features='sqrt')
+    max_features='sqrt',
+    random_state=42)
+
 clf.fit(X_train, y_train)
 
 # --- DEFINIZIONE CAMPI E VALORI USER-FRIENDLY ---
@@ -141,7 +156,6 @@ def predict_medicine(*inputs):
         conf_color = "background:#519872;color:#8c5f00;"
     else:
         conf_color = "background:#2ecc71;color:#165c37;"
-
 
     result_html = f"""
         <div style='
