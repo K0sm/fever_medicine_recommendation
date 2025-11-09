@@ -8,8 +8,6 @@ Stato dell’arte ispirato e documentazione:
    - Output di affidabilità, explainability. PubMed:37627940
 3. Shaik, N.V. et al. (2025) "Medicine recommendation system (Health Harbour)"
    - Interfaccia user-friendly e campi con menu. WJARR-2025-0382
-
-Implementazione Moderna: grafica rilassante, responsive, valori default, usability!
 """
 
 import pandas as pd
@@ -20,7 +18,6 @@ from sklearn.preprocessing import LabelEncoder
 import gradio as gr
 import matplotlib.pyplot as plt
 
-# --- FUNZIONE PER RIMOZIONE OUTLIER ---
 def remove_outliers_iqr(df, column):
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
@@ -29,12 +26,9 @@ def remove_outliers_iqr(df, column):
     upper_bound = Q3 + 1.5 * IQR
     return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
 
-# --- PREPARAZIONE DATI ---
-
 df = pd.read_csv('enhanced_fever_medicine_recommendation.csv')
 df.fillna('None', inplace=True)
 
-# Applica la funzione per rimuovere outlier dalla temperatura
 df = remove_outliers_iqr(df, 'Temperature')
 
 target = 'Recommended_Medication'
@@ -62,7 +56,6 @@ LABELS = {
     "previous_med": "Previous Medication"
 }
 
-# Encoding categorico per consistenza Random Forest (paper1)
 le_dict = {}
 for col in df.columns:
     if df[col].dtype == 'object' or col == 'Previous_Medication':
@@ -81,8 +74,6 @@ clf = RandomForestClassifier(
     random_state=42)
 
 clf.fit(X_train, y_train)
-
-# --- DEFINIZIONE CAMPI E VALORI USER-FRIENDLY ---
 
 menu_options = {
     'Fever_Severity': ['Normal', 'Mild Fever', 'High Fever'],
@@ -104,7 +95,6 @@ num_fields1 = ['Age', 'BMI', 'Temperature', 'Heart_Rate']
 num_fields2 = ['Humidity', 'AQI']
 numeric_fields = num_fields1 + num_fields2
 
-# Valori attendibili per UX (basato su range reali e medie)
 default_values = {
     LABELS["age"]: 40,
     LABELS["temperature"]: 37.5,
@@ -113,8 +103,6 @@ default_values = {
     LABELS["humidity"]: 60,
     LABELS["aqi"]: 50
 }
-
-# --- FUNZIONE DI PREDIZIONE ROBUSTA (in stile paper2) ---
 
 def predict_medicine(*inputs):
     numerics = list(inputs[:len(numeric_fields)])
@@ -180,8 +168,6 @@ def predict_medicine(*inputs):
 
     return result_html, fig
 
-# --- UI COMPATTA E MODERNA (paper3: Fields affiancati, styling green/teal) ---
-
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), css="""
     body { background: #f0f6f3; color: #227373; }
     #main-btn { background: #3cba92!important; color: #fff!important; border-radius: 8px; font-weight: bold; }
@@ -222,10 +208,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green", secondary_hue="teal"), 
     btn.click(
         predict_medicine,
         inputs = [
-            age, temperature, bmi, heart_rate, humidity, aqi,  # tutti i numerici nell’ordine di numeric_fields!
+            age, temperature, bmi, heart_rate, humidity, aqi,
             gender, diet_type, physical_activity, blood_pressure,
             fever_severity, headache, body_ache, fatigue,
-            chronic_conditions, allergies, smoking_history, alcohol, previous_med  # tutti i categorici nell’ordine delle chiavi di menu_options
+            chronic_conditions, allergies, smoking_history, alcohol, previous_med
         ],
         outputs=[output_md, output_plot]
     )
