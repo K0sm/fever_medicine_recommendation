@@ -22,7 +22,7 @@ Fornire uno strumento di supporto alle decisioni cliniche che permetta una racco
 3. Assicurati di avere il file `enhanced_fever_medicine_recommendation.csv` nella stessa cartella dello script.
 
 ## Avvio del progetto
-Per avviare l’interfaccia utente, esegui lo script Python principale: `python sistema_raccomandazione_medicinale.py`.
+Per avviare l’interfaccia utente, esegui lo script Python principale: `python main.py`.
 Si aprirà una pagina web locale con il modulo per inserire i dati clinici del paziente (per comodità e testing ho preparato alcuni valori predefiniti).
 
 ## Utilizzo
